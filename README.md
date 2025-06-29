@@ -19,6 +19,7 @@
 - `main.py` — основной скрипт API-приложения
 - `knn_model.pkl` — модель
 - `templates/index.html` — HTML-форма
+- `/results/` - Папка с сохранными результатами(json, html) после отработки модели. 
 - `requirements.txt` — библиотеки
 - `Notebook/HA_analysis.ipynb` — ноутбук c исследованием и обучением модели
 - `predictions.csv` - файл по ТЗ
