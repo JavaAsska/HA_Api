@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ML Prediction Service</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .form-group { margin-bottom: 20px; }
+        .result { margin-top: 30px; padding: 15px; background: #f5f5f5; }
+        .download-btn { 
+            display: inline-block; 
+            margin: 10px 5px; 
+            padding: 8px 15px; 
+            background: #4CAF50; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 4px; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Загрузите CSV файл для предсказания</h1>
+        
+        <form id="uploadForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <input type="file" name="file" accept=".csv" required>
+            </div>
+            <button type="submit">Отправить</button>
+        </form>
+        
+        <div id="result" class="result" style="display: none;">
+            <h3>Результаты предсказания:</h3>
+            <div id="resultContent"></div>
+            <div id="downloadLinks"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            formData.append('file', e.target.file.files[0]);
+            
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                // Отображение результатов
+                document.getElementById('resultContent').innerHTML = `
+                    <p><strong>Файл:</strong> ${result.filename}</p>
+                    <p><strong>Модель:</strong> ${result.model_name}</p>
+                    <p><strong>Количество предсказаний:</strong> ${result.predictions.length}</p>
+                    <div style="max-height: 300px; overflow-y: auto;">
+                        <pre>${JSON.stringify(result.predictions, null, 2)}</pre>
+                    </div>
+                `;
+                
+                // Ссылки для скачивания
+                const baseName = result.filename.replace('.csv', '');
+                document.getElementById('downloadLinks').innerHTML = `
+                    <h4>Скачать результаты:</h4>
+                    <a href="/download/${baseName}_predictions.json" class="download-btn">JSON</a>
+                    <a href="/download/${baseName}_predictions.html" class="download-btn">HTML</a>
+                `;
+                
+                document.getElementById('result').style.display = 'block';
+                
+            } catch (error) {
+                alert('Ошибка при отправке файла: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
